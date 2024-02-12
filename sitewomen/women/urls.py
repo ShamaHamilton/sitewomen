@@ -6,9 +6,9 @@ from women.converters import FourDigitYearConverter
 register_converter(FourDigitYearConverter, "year4")
 
 urlpatterns = [
-    path('', index),
-    path('cats/<int:cat_id>/', categories),
-    path('cats/<slug:cat_slug>/', categories_by_slug),
+    path('', index, name='home'),
+    path('cats/<int:cat_id>/', categories, name='cats_id'),
+    path('cats/<slug:cat_slug>/', categories_by_slug, name='cats'),
     # re_path(r"^archive/(?P<year>[0-9]{4})/", archive),
-    path('archive/<year4:year>/', archive),
+    path('archive/<year4:year>/', archive, name='archive'),
 ]
