@@ -1,25 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>{{ title }}</h1>
-
-{% include 'women/includes/nav.html' only %}
-
-<ul>
+<ul class="list-articles">
   {% for post in posts %}
   {% if post.is_published %}
   <li>
     <h2>{{ post.title }}</h2>
-    <p>{{ post.content }}</p>
-    <p><a href="{% url 'post' post.id %}">Читать пост</a></p>
-    {% if not forloop.last %}
-    <hr>
-    {% endif %}
+    {% autoescape off %}
+    {{ post.content|linebreaks|truncatewords:40 }}
+    {% endautoescape %}
+    <div class="clear"></div>
+    <p class="link-read-post"><a href="{% url 'post' post.id %}">Читать пост</a></p>
   </li>
   {% endif %}
   {% endfor %}
 </ul>
-
-{% include 'women/includes/nav.html' %}
-
 {% endblock %}

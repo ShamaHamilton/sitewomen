@@ -119,7 +119,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = 'static/'  # префикс URL-адреса для статических файлов
+
+STATIC_ROOT = ...  # путь к общей статической папке, формируемой при запуске команды collectstatic
+# (для сбора всей статики в единый каталог при размещении сайта на реальном веб-сервере).
+
+STATICFILES_DIRS = []  # список дополнительных (нестандартных) путей к статическим файлам,
+# используемых для сбора и для режима отладки
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
