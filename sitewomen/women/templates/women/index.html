@@ -1,40 +1,25 @@
-<!DOCTYPE html>
-<html lang="ru">
+{% extends 'base.html' %}
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ title }}</title>
-</head>
+{% block content %}
+<h1>{{ title }}</h1>
 
-<body>
-  <ul>
-    <li><a href="{% url 'home' %}">Главная страница</a></li>
-    {% for menu_item in menu %}
-    {% if not forloop.last %}<li>{% else %}
-    <li class="last">{% endif %}
-      <a href="{% url menu_item.url_name %}">{{ menu_item.title }}</a>
-    </li>
-    {% endfor %}
-  </ul>
+{% include 'women/includes/nav.html' only %}
 
-  <h1>{{ title }}</h1>
-
-  <ul>
-    {% for post in posts %}
-    {% if post.is_published %}
-    <li>
-      <h2>{{ post.title }}</h2>
-      <p>{{ post.content }}</p>
-      <p><a href="{% url 'post' post.id %}">Читать пост</a></p>
-      {% if not forloop.last %}
-      <hr>
-      {% endif %}
-    </li>
+<ul>
+  {% for post in posts %}
+  {% if post.is_published %}
+  <li>
+    <h2>{{ post.title }}</h2>
+    <p>{{ post.content }}</p>
+    <p><a href="{% url 'post' post.id %}">Читать пост</a></p>
+    {% if not forloop.last %}
+    <hr>
     {% endif %}
-    {% endfor %}
-  </ul>
+  </li>
+  {% endif %}
+  {% endfor %}
+</ul>
 
-</body>
+{% include 'women/includes/nav.html' %}
 
-</html>
+{% endblock %}

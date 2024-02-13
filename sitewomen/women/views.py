@@ -46,7 +46,7 @@ def index(request: HttpRequest) -> HttpResponse:
 
 
 def about(request: HttpRequest) -> HttpResponse:
-    return render(request, 'women/about.html', {'title': 'О сайте'})
+    return render(request, 'women/about.html', {'title': 'О сайте', 'menu': menu})
 
 
 def show_post(request: HttpRequest, post_id: int) -> HttpResponse:
