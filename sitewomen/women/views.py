@@ -39,11 +39,19 @@ data_db = [
     {'id': 3, 'title': 'Джулия Робертс', 'content': 'Биография Джулия Робертс', 'is_published': True},]
 
 
+cats_db = [
+    {'id': 1, 'name': 'Актрисы'},
+    {'id': 2, 'name': 'Певицы'},
+    {'id': 3, 'name': 'Спортсменки'},
+]
+
+
 def index(request: HttpRequest) -> HttpResponse:
     data = {
         'title': 'Главная страница',
         'menu': menu,
         'posts': data_db,
+        'cat_selected': 0,
     }
     return render(request, 'women/index.html', context=data)
 
@@ -66,6 +74,16 @@ def contact(request: HttpRequest) -> HttpResponse:
 
 def login(request: HttpRequest) -> HttpResponse:
     return HttpResponse('Авторизация')
+
+
+def show_category(request: HttpRequest, cat_id: int):
+    data = {
+        'title': 'Главная страница',
+        'menu': menu,
+        'posts': data_db,
+        'cat_selected': cat_id,
+    }
+    return render(request, 'women/index.html', context=data)
 
 
 def page_not_found(request: HttpRequest, exception) -> HttpResponseNotFound:
