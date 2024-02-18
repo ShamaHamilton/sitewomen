@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.db.models import (
     Model, Index, Manager, IntegerChoices,
     CharField, TextField, DateTimeField, BooleanField, SlugField,
+    ForeignKey, PROTECT
 )
 
 
@@ -22,6 +23,7 @@ class Women(Model):
     time_create = DateTimeField(auto_now_add=True)
     time_update = DateTimeField(auto_now=True)
     is_published = BooleanField(choices=Status.choices, default=Status.DRAFT)
+    category = ForeignKey('Category', on_delete=PROTECT)
 
     objects = Manager()
     published = PublishedManager()
@@ -37,3 +39,11 @@ class Women(Model):
 
     def get_absolute_url(self):
         return reverse('post', kwargs={'post_slug': self.slug})
+
+
+class Category(Model):
+    name = CharField(max_length=100, db_index=True)
+    slug = SlugField(max_length=255, unique=True, db_index=True)
+
+    def __str__(self) -> str:
+        return self.name
