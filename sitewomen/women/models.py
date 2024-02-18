@@ -1,16 +1,30 @@
+from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.db.models import (
-    Model, CharField, TextField, DateTimeField, BooleanField, SlugField, Index
+    Model, Index, Manager, IntegerChoices,
+    CharField, TextField, DateTimeField, BooleanField, SlugField,
 )
 
 
+class PublishedManager(Manager):
+    def get_queryset(self) -> QuerySet:
+        return super().get_queryset().filter(is_published=Women.Status.PUBLISHED)
+
+
 class Women(Model):
+    class Status(IntegerChoices):
+        DRAFT = 0, 'Черновик'
+        PUBLISHED = 1, 'Опубликовано'
+
     title = CharField(max_length=255)
     slug = SlugField(max_length=255, unique=True, db_index=True)
     content = TextField(blank=True)
     time_create = DateTimeField(auto_now_add=True)
     time_update = DateTimeField(auto_now=True)
-    is_published = BooleanField(default=True)
+    is_published = BooleanField(choices=Status.choices, default=Status.DRAFT)
+
+    objects = Manager()
+    published = PublishedManager()
 
     def __str__(self) -> str:
         return self.title
