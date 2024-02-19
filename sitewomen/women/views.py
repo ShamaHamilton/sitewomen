@@ -10,46 +10,17 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.template.loader import render_to_string
 
-from .models import Women
+from .models import Category, Women
 
 menu = [
-    {
-        'title': 'О сайте',
-        'url_name': 'about'
-    },
-    {
-        'title': 'Добавить статью',
-        'url_name': 'add_page'
-    },
-    {
-        'title': 'Обратная связь',
-        'url_name': 'contact'
-    },
-    {
-        'title': 'Войти',
-        'url_name': 'login'
-    },
-]
-
-data_db = [
-    {'id': 1, 'title': 'Анджелина Джоли',
-     'content':
-     '''<h1>Анджелина Джоли</h1> (англ. Angelina Jolie[7], при рождении Войт (англ. Voight), ранее Джоли Питт (англ. Jolie Pitt); род. 4 июня 1975, Лос-Анджелес, Калифорния, США) — американская актриса кино, телевидения и озвучивания, кинорежиссёр, сценаристка, продюсер, фотомодель, посол доброй воли ООН.
-    Обладательница премии «Оскар», трёх премий «Золотой глобус» (первая актриса в истории, три года подряд выигравшая премию) и двух «Премий Гильдии киноактёров США».''',
-     'is_published': True},
-    {'id': 2, 'title': 'Марго Робби', 'content': 'Биография Марго Робби', 'is_published': False},
-    {'id': 3, 'title': 'Джулия Робертс', 'content': 'Биография Джулия Робертс', 'is_published': True},]
-
-
-cats_db = [
-    {'id': 1, 'name': 'Актрисы'},
-    {'id': 2, 'name': 'Певицы'},
-    {'id': 3, 'name': 'Спортсменки'},
+    {'title': 'О сайте',            'url_name': 'about'},
+    {'title': 'Добавить статью',    'url_name': 'add_page'},
+    {'title': 'Обратная связь',     'url_name': 'contact'},
+    {'title': 'Войти',              'url_name': 'login'},
 ]
 
 
 def index(request: HttpRequest) -> HttpResponse:
-    # posts = Women.objects.filter(is_published=1)
     posts = Women.published.all()
 
     data = {
@@ -89,12 +60,15 @@ def login(request: HttpRequest) -> HttpResponse:
     return HttpResponse('Авторизация')
 
 
-def show_category(request: HttpRequest, cat_id: int):
+def show_category(request: HttpRequest, cat_slug: str) -> HttpResponse:
+    category = get_object_or_404(Category, slug=cat_slug)
+    posts = Women.published.filter(category_id=category.pk)
+
     data = {
-        'title': 'Главная страница',
+        'title': f'Рубрика: {category.name}',
         'menu': menu,
-        'posts': data_db,
-        'cat_selected': cat_id,
+        'posts': posts,
+        'cat_selected': category.pk,
     }
     return render(request, 'women/index.html', context=data)
 

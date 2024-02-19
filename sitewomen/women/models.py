@@ -23,7 +23,7 @@ class Women(Model):
     time_create = DateTimeField(auto_now_add=True)
     time_update = DateTimeField(auto_now=True)
     is_published = BooleanField(choices=Status.choices, default=Status.DRAFT)
-    category = ForeignKey('Category', on_delete=PROTECT)
+    category = ForeignKey('Category', on_delete=PROTECT, related_name='posts')  # women_set -> posts
 
     objects = Manager()
     published = PublishedManager()
@@ -47,3 +47,6 @@ class Category(Model):
 
     def __str__(self) -> str:
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('category', kwargs={'cat_slug': self.slug})
