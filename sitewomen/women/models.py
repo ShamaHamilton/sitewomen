@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.db.models import (
     Model, Index, Manager, IntegerChoices,
     CharField, TextField, DateTimeField, BooleanField, SlugField,
-    ForeignKey, PROTECT
+    ForeignKey, ManyToManyField, PROTECT
 )
 
 
@@ -24,6 +24,7 @@ class Women(Model):
     time_update = DateTimeField(auto_now=True)
     is_published = BooleanField(choices=Status.choices, default=Status.DRAFT)
     category = ForeignKey('Category', on_delete=PROTECT, related_name='posts')  # women_set -> posts
+    tags = ManyToManyField('TagPost', blank=True, related_name='tags')
 
     objects = Manager()
     published = PublishedManager()
@@ -50,3 +51,11 @@ class Category(Model):
 
     def get_absolute_url(self):
         return reverse('category', kwargs={'cat_slug': self.slug})
+
+
+class TagPost(Model):
+    tag = CharField(max_length=100, db_index=True)
+    slug = SlugField(max_length=255, unique=True, db_index=True)
+
+    def __str__(self) -> str:
+        return self.tag
