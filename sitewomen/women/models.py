@@ -2,8 +2,8 @@ from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.db.models import (
     Model, Index, Manager, IntegerChoices,
-    CharField, TextField, DateTimeField, BooleanField, SlugField,
-    ForeignKey, ManyToManyField, PROTECT
+    CharField, TextField, DateTimeField, BooleanField, SlugField, IntegerField,
+    ForeignKey, ManyToManyField, OneToOneField, PROTECT, SET_NULL
 )
 
 
@@ -25,6 +25,7 @@ class Women(Model):
     is_published = BooleanField(choices=Status.choices, default=Status.DRAFT)
     category = ForeignKey('Category', on_delete=PROTECT, related_name='posts')  # women_set -> posts
     tags = ManyToManyField('TagPost', blank=True, related_name='tags')
+    husband = OneToOneField('Husband', on_delete=SET_NULL, null=True, blank=True, related_name='wuman')
 
     objects = Manager()
     published = PublishedManager()
@@ -62,3 +63,11 @@ class TagPost(Model):
 
     def get_absolute_url(self):
         return reverse('tag', kwargs={'tag_slug': self.slug})
+
+
+class Husband(Model):
+    name = CharField(max_length=100)
+    age = IntegerField(null=True)
+
+    def __str__(self) -> str:
+        return self.name
