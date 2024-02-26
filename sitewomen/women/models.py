@@ -17,15 +17,19 @@ class Women(Model):
         DRAFT = 0, 'Черновик'
         PUBLISHED = 1, 'Опубликовано'
 
-    title = CharField(max_length=255)
-    slug = SlugField(max_length=255, unique=True, db_index=True)
-    content = TextField(blank=True)
-    time_create = DateTimeField(auto_now_add=True)
-    time_update = DateTimeField(auto_now=True)
-    is_published = BooleanField(choices=Status.choices, default=Status.DRAFT)
-    category = ForeignKey('Category', on_delete=PROTECT, related_name='posts')  # women_set -> posts
-    tags = ManyToManyField('TagPost', blank=True, related_name='tags')
-    husband = OneToOneField('Husband', on_delete=SET_NULL, null=True, blank=True, related_name='wuman')
+    title = CharField(max_length=255, verbose_name='Заголовок')
+    slug = SlugField(max_length=255, unique=True, db_index=True, verbose_name='Slug')
+    content = TextField(blank=True, verbose_name='Текст статьи')
+    time_create = DateTimeField(auto_now_add=True, verbose_name='Время создания')
+    time_update = DateTimeField(auto_now=True, verbose_name='Время изменения')
+    is_published = BooleanField(choices=tuple(map(lambda x: (bool(x[0]), x[1]), Status.choices)),
+                                default=Status.DRAFT,
+                                verbose_name='Статус')
+    category = ForeignKey('Category', on_delete=PROTECT, related_name='posts',
+                          verbose_name='Категории')  # women_set -> posts
+    tags = ManyToManyField('TagPost', blank=True, related_name='tags', verbose_name='Теги')
+    husband = OneToOneField('Husband', on_delete=SET_NULL, null=True,
+                            blank=True, related_name='wuman', verbose_name='Муж')
 
     objects = Manager()
     published = PublishedManager()
@@ -47,8 +51,12 @@ class Women(Model):
 
 
 class Category(Model):
-    name = CharField(max_length=100, db_index=True)
+    name = CharField(max_length=100, db_index=True, verbose_name='Категория')
     slug = SlugField(max_length=255, unique=True, db_index=True)
+
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
     def __str__(self) -> str:
         return self.name
