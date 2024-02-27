@@ -26,6 +26,12 @@ class MarriedFilter(SimpleListFilter):
 
 @admin.register(Women)
 class WomenAdmin(ModelAdmin):
+    fields = ('title', 'slug', 'content', 'category', 'husband', 'tags')
+    # exclude = ('tags', 'is_published')
+    # readonly_fields = ('slug', )
+    prepopulated_fields = {'slug': ('title', )}
+    filter_horizontal = ('tags', )
+    # filter_vertical = ('tags', )
     list_display = ('title', 'time_create', 'is_published', 'category', 'brief_info')
     list_display_links = ('title', )
     ordering = ['-time_create', 'title']

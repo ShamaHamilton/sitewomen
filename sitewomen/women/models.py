@@ -1,5 +1,8 @@
+from transliterate import translit
+
 from django.db.models.query import QuerySet
 from django.urls import reverse
+from django.template.defaultfilters import slugify
 from django.db.models import (
     Model, Index, Manager, IntegerChoices,
     CharField, TextField, DateTimeField, BooleanField, SlugField, IntegerField,
@@ -48,6 +51,10 @@ class Women(Model):
 
     def get_absolute_url(self):
         return reverse('post', kwargs={'post_slug': self.slug})
+
+    # def save(self, *args, **kwargs) -> None:
+    #     self.slug = slugify(translit(self.title, 'ru', reversed=True))
+    #     super().save(*args, **kwargs)
 
 
 class Category(Model):
