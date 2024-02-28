@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.template.loader import render_to_string
 
 from .models import Category, TagPost, Women
+from .forms import AddPostForm
 
 menu = [
     {'title': 'О сайте',            'url_name': 'about'},
@@ -49,7 +50,19 @@ def show_post(request: HttpRequest, post_slug: int) -> HttpResponse:
 
 
 def addpage(request: HttpRequest) -> HttpResponse:
-    return HttpResponse('Отображение статьи')
+    if request.method == 'POST':
+        form = AddPostForm(request.POST)
+        if form.is_valid():
+            print(form.cleaned_data)
+    elif request.method == 'GET':
+        form = AddPostForm()
+
+    data = {
+        'menu': menu,
+        'title': 'Добавление статьи',
+        'form': form
+    }
+    return render(request, 'women/addpage.html', data)
 
 
 def contact(request: HttpRequest) -> HttpResponse:
