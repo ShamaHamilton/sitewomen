@@ -54,11 +54,14 @@ def addpage(request: HttpRequest) -> HttpResponse:
         form = AddPostForm(request.POST)
         if form.is_valid():
             # print(form.cleaned_data)
-            try:
-                Women.objects.create(**form.cleaned_data)
-                return redirect('home')
-            except:
-                form.add_error(None, 'Ошибка добавления поста')
+            # try:  # для форм, не связанных с моделью
+            #     Women.objects.create(**form.cleaned_data)
+            #     return redirect('home')
+            # except:
+            #     form.add_error(None, 'Ошибка добавления поста')
+            # -----------------------------------------------
+            form.save()  # для форм, связанных с моделью
+            return redirect('home')
     elif request.method == 'GET':
         form = AddPostForm()
 
