@@ -31,6 +31,13 @@ class Women(models.Model):
             MaxLengthValidator(100, message='Максимум 100 символов'),
         ],
     )
+    photo = models.ImageField(
+        verbose_name='Фото',
+        upload_to='photos/%Y/%m/%d/',
+        default=None,
+        blank=True,
+        null=True,
+    )
     content = models.TextField(
         verbose_name='Текст статьи',
         blank=True,
@@ -143,3 +150,7 @@ class Husband(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class UploadFiles(models.Model):
+    file = models.FileField(upload_to='uploads_model')

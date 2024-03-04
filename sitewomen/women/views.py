@@ -10,8 +10,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.template.loader import render_to_string
 
-from .models import Category, TagPost, Women
-from .forms import AddPostForm
+from .models import Category, TagPost, Women, UploadFiles
+from .forms import AddPostForm, UploadFileForm
+from .services import handle_uploaded_file
 
 menu = [
     {'title': 'О сайте',            'url_name': 'about'},
@@ -33,8 +34,16 @@ def index(request: HttpRequest) -> HttpResponse:
     return render(request, 'women/index.html', context=data)
 
 
-def about(request: HttpRequest) -> HttpResponse:
-    return render(request, 'women/about.html', {'title': 'О сайте', 'menu': menu})
+def about(request):
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            # handle_uploaded_file(form.cleaned_data['file'])
+            fp = UploadFiles(file=form.cleaned_data['file'])
+            fp.save()
+    elif request.method == 'GET':
+        form = UploadFileForm()
+    return render(request, 'women/about.html', {'title': 'О сайте', 'menu': menu, 'form': form})
 
 
 def show_post(request: HttpRequest, post_slug: int) -> HttpResponse:
@@ -51,7 +60,7 @@ def show_post(request: HttpRequest, post_slug: int) -> HttpResponse:
 
 def addpage(request: HttpRequest) -> HttpResponse:
     if request.method == 'POST':
-        form = AddPostForm(request.POST)
+        form = AddPostForm(request.POST, request.FILES)
         if form.is_valid():
             # print(form.cleaned_data)
             # try:  # для форм, не связанных с моделью

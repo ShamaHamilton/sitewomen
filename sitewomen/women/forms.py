@@ -37,7 +37,7 @@ class AddPostForm(forms.ModelForm):  # Форма, связанная с мод�
 
     class Meta:
         model = Women
-        fields = ['title', 'slug', 'content', 'is_published', 'category', 'husband', 'tags']
+        fields = ['title', 'slug', 'content', 'photo', 'is_published', 'category', 'husband', 'tags']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-input'}),
             'content': forms.Textarea(attrs={'cols': 50, 'rows': 5}),
@@ -52,6 +52,10 @@ class AddPostForm(forms.ModelForm):  # Форма, связанная с мод�
             raise ValidationError('Длина превышает 50 символов')
 
         return title
+
+
+class UploadFileForm(forms.Form):
+    file = forms.ImageField(label="Файл")
 
 
 # class AddPostForm(forms.Form):  # Форма, не связанная с моделью
