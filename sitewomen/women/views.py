@@ -1,3 +1,4 @@
+from typing import Any
 from django.http import (
     Http404,
     HttpResponse,
@@ -9,6 +10,8 @@ from django.http import (
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.template.loader import render_to_string
+from django.views import View
+from django.views.generic import TemplateView
 
 from .models import Category, TagPost, Women, UploadFiles
 from .forms import AddPostForm, UploadFileForm
@@ -32,6 +35,24 @@ def index(request: HttpRequest) -> HttpResponse:
         'cat_selected': 0,
     }
     return render(request, 'women/index.html', context=data)
+
+
+class WomenHome(TemplateView):
+    template_name = 'women/index.html'
+    extra_context = {
+        'title': 'Главная страница',
+        'menu': menu,
+        'posts': Women.published.all().select_related('category'),
+        'cat_selected': 0,
+    }
+
+    # def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+    #     context = super().get_context_data(**kwargs)
+    #     context['title'] = 'Главная страница'
+    #     context['menu'] = menu
+    #     context['posts'] = Women.published.all().select_related('category')
+    #     context['cat_selected'] = int(self.request.GET.get('cat_id', 0))
+    #     return context
 
 
 def about(request):
@@ -80,6 +101,29 @@ def addpage(request: HttpRequest) -> HttpResponse:
         'form': form
     }
     return render(request, 'women/addpage.html', data)
+
+
+class AddPage(View):
+    def get(self, request):
+        form = AddPostForm()
+        data = {
+            'menu': menu,
+            'title': 'Добавление статьи',
+            'form': form
+        }
+        return render(request, 'women/addpage.html', data)
+
+    def post(self, request):
+        form = AddPostForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+        data = {
+            'menu': menu,
+            'title': 'Добавление статьи',
+            'form': form
+        }
+        return render(request, 'women/addpage.html', data)
 
 
 def contact(request: HttpRequest) -> HttpResponse:
