@@ -1,4 +1,5 @@
 from typing import Any
+from django.db.models.base import Model as Model
 from django.db.models.query import QuerySet
 from django.http import (
     Http404,
@@ -12,7 +13,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.template.loader import render_to_string
 from django.views import View
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, DetailView
 
 from .models import Category, TagPost, Women, UploadFiles
 from .forms import AddPostForm, UploadFileForm
@@ -73,17 +74,32 @@ def about(request):
     return render(request, 'women/about.html', {'title': 'О сайте', 'menu': menu, 'form': form})
 
 
-def show_post(request: HttpRequest, post_slug: int) -> HttpResponse:
-    post = get_object_or_404(Women, slug=post_slug)
+# def show_post(request: HttpRequest, post_slug: int) -> HttpResponse:
+#     post = get_object_or_404(Women, slug=post_slug)
 
-    data = {
-        'title': post.title,
-        'menu': menu,
-        'post': post,
-        'cat_selected': 1,
-    }
-    return render(request, 'women/post.html', data)
+#     data = {
+#         'title': post.title,
+#         'menu': menu,
+#         'post': post,
+#         'cat_selected': 1,
+#     }
+#     return render(request, 'women/post.html', data)
 
+
+class ShowPost(DetailView):
+    # model = Women
+    template_name = 'women/post.html'
+    slug_url_kwarg = 'post_slug'
+    context_object_name = 'post'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = context['post'].title
+        context['menu'] = menu
+        return context
+
+    def get_object(self, queryset: QuerySet[Any] | None = ...) -> Model:
+        return get_object_or_404(Women.published, slug=self.kwargs[self.slug_url_kwarg])
 
 # def addpage(request: HttpRequest) -> HttpResponse:
 #     if request.method == 'POST':
@@ -170,16 +186,33 @@ class WomenCategory(ListView):
         return context
 
 
-def show_tag_postlist(request: HttpRequest, tag_slug: str):
-    tag = get_object_or_404(TagPost, slug=tag_slug)
-    posts = tag.tags.filter(is_published=Women.Status.PUBLISHED).select_related('category')
-    data = {
-        'title': f"Тег: {tag.tag}",
-        'menu': menu,
-        'posts': posts,
-        'cat_selected': None,
-    }
-    return render(request, 'women/index.html', data)
+# def show_tag_postlist(request: HttpRequest, tag_slug: str):
+#     tag = get_object_or_404(TagPost, slug=tag_slug)
+#     posts = tag.tags.filter(is_published=Women.Status.PUBLISHED).select_related('category')
+#     data = {
+#         'title': f"Тег: {tag.tag}",
+#         'menu': menu,
+#         'posts': posts,
+#         'cat_selected': None,
+#     }
+#     return render(request, 'women/index.html', data)
+
+
+class TagPostList(ListView):
+    template_name = 'women/index.html'
+    context_object_name = 'posts'
+    allow_empty = False
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tag = TagPost.objects.get(slug=self.kwargs['tag_slug'])
+        context['title'] = 'Тег: ' + tag.tag
+        context['menu'] = menu
+        context['cat_selected'] = None
+        return context
+
+    def get_queryset(self):
+        return Women.published.filter(tags__slug=self.kwargs['tag_slug']).select_related('category')
 
 
 def page_not_found(request: HttpRequest, exception) -> HttpResponseNotFound:
