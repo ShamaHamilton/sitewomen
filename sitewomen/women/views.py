@@ -1,4 +1,5 @@
 from typing import Any
+from django.db.models.query import QuerySet
 from django.http import (
     Http404,
     HttpResponse,
@@ -11,7 +12,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.template.loader import render_to_string
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 
 from .models import Category, TagPost, Women, UploadFiles
 from .forms import AddPostForm, UploadFileForm
@@ -25,26 +26,31 @@ menu = [
 ]
 
 
-def index(request: HttpRequest) -> HttpResponse:
-    posts = Women.published.all().select_related('category')  # жадная загрузка
+# def index(request: HttpRequest) -> HttpResponse:
+#     posts = Women.published.all().select_related('category')  # жадная загрузка
 
-    data = {
-        'title': 'Главная страница',
-        'menu': menu,
-        'posts': posts,
-        'cat_selected': 0,
-    }
-    return render(request, 'women/index.html', context=data)
+#     data = {
+#         'title': 'Главная страница',
+#         'menu': menu,
+#         'posts': posts,
+#         'cat_selected': 0,
+#     }
+#     return render(request, 'women/index.html', context=data)
 
 
-class WomenHome(TemplateView):
+class WomenHome(ListView):
+    # model = Women
     template_name = 'women/index.html'
+    context_object_name = 'posts'
+
     extra_context = {
         'title': 'Главная страница',
         'menu': menu,
-        'posts': Women.published.all().select_related('category'),
         'cat_selected': 0,
     }
+
+    def get_queryset(self) -> QuerySet[Any]:
+        return Women.published.all().select_related('category')
 
     # def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
     #     context = super().get_context_data(**kwargs)
@@ -79,28 +85,28 @@ def show_post(request: HttpRequest, post_slug: int) -> HttpResponse:
     return render(request, 'women/post.html', data)
 
 
-def addpage(request: HttpRequest) -> HttpResponse:
-    if request.method == 'POST':
-        form = AddPostForm(request.POST, request.FILES)
-        if form.is_valid():
-            # print(form.cleaned_data)
-            # try:  # для форм, не связанных с моделью
-            #     Women.objects.create(**form.cleaned_data)
-            #     return redirect('home')
-            # except:
-            #     form.add_error(None, 'Ошибка добавления поста')
-            # -----------------------------------------------
-            form.save()  # для форм, связанных с моделью
-            return redirect('home')
-    elif request.method == 'GET':
-        form = AddPostForm()
+# def addpage(request: HttpRequest) -> HttpResponse:
+#     if request.method == 'POST':
+#         form = AddPostForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             # print(form.cleaned_data)
+#             # try:  # для форм, не связанных с моделью
+#             #     Women.objects.create(**form.cleaned_data)
+#             #     return redirect('home')
+#             # except:
+#             #     form.add_error(None, 'Ошибка добавления поста')
+#             # -----------------------------------------------
+#             form.save()  # для форм, связанных с моделью
+#             return redirect('home')
+#     elif request.method == 'GET':
+#         form = AddPostForm()
 
-    data = {
-        'menu': menu,
-        'title': 'Добавление статьи',
-        'form': form
-    }
-    return render(request, 'women/addpage.html', data)
+#     data = {
+#         'menu': menu,
+#         'title': 'Добавление статьи',
+#         'form': form
+#     }
+#     return render(request, 'women/addpage.html', data)
 
 
 class AddPage(View):
@@ -145,6 +151,23 @@ def show_category(request: HttpRequest, cat_slug: str) -> HttpResponse:
         'cat_selected': category.pk,
     }
     return render(request, 'women/index.html', context=data)
+
+
+class WomenCategory(ListView):
+    template_name = 'women/index.html'
+    context_object_name = 'posts'
+    allow_empty = False
+
+    def get_queryset(self) -> QuerySet[Any]:
+        return Women.published.filter(category__slug=self.kwargs['cat_slug']).select_related('category')
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        cat = context['posts'][0].category
+        context['title'] = 'Категория - ' + cat.name
+        context['menu'] = menu
+        context['cat_selected'] = cat.pk
+        return context
 
 
 def show_tag_postlist(request: HttpRequest, tag_slug: str):

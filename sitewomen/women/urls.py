@@ -12,8 +12,9 @@ urlpatterns = [
     #     name='home'
     # ),
 
-    path('',                            WomenHome.as_view(),    name='home'),
-    path('addpage/',                    AddPage.as_view(),      name='add_page'),
+    path('',                            WomenHome.as_view(),        name='home'),
+    path('addpage/',                    AddPage.as_view(),          name='add_page'),
+    path('category/<slug:cat_slug>/',   WomenCategory.as_view(),    name='category'),
 
     # path('',                            index,              name='home'),
     path('about/',                      about,                  name='about'),
@@ -21,6 +22,6 @@ urlpatterns = [
     path('contact/',                    contact,                name='contact'),
     path('login/',                      login,                  name='login'),
     path('post/<slug:post_slug>/',      show_post,              name='post'),
-    path('category/<slug:cat_slug>/',   show_category,          name='category'),
+    # path('category/<slug:cat_slug>/',   show_category,          name='category'),
     path('tag/<slug:tag_slug>/',        show_tag_postlist,      name='tag'),
 ]
