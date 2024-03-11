@@ -13,7 +13,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.template.loader import render_to_string
 from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView, FormView
+from django.views.generic import TemplateView, ListView, DetailView, FormView, CreateView, UpdateView
 
 from .models import Category, TagPost, Women, UploadFiles
 from .forms import AddPostForm, UploadFileForm
@@ -125,18 +125,17 @@ class ShowPost(DetailView):
 #     return render(request, 'women/addpage.html', data)
 
 
-class AddPage(FormView):
+class AddPage(CreateView):
     form_class = AddPostForm
+    # model = Women
+    # fields = ['title', 'slug', 'content', 'is_published', 'category']
     template_name = 'women/addpage.html'
-    success_url = reverse_lazy('home')
+    # success_url = reverse_lazy('home')  # иначе переходит по get_absolute_url
     extra_context = {
         'title': 'Добавление статьи',
         'menu': menu,
     }
 
-    def form_valid(self, form: Any) -> HttpResponse:
-        form.save()
-        return super().form_valid(form)
 
 # class AddPage(View):
 #     def get(self, request):
@@ -159,6 +158,17 @@ class AddPage(FormView):
 #             'form': form
 #         }
 #         return render(request, 'women/addpage.html', data)
+
+
+class UpdatePage(UpdateView):
+    model = Women
+    fields = ['title', 'content', 'photo', 'is_published', 'category']
+    template_name = 'women/addpage.html'
+    success_url = reverse_lazy('home')  # иначе переходит по get_absolute_url
+    extra_context = {
+        'title': 'Редактирование статьи статьи',
+        'menu': menu,
+    }
 
 
 def contact(request: HttpRequest) -> HttpResponse:
