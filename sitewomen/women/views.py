@@ -14,6 +14,7 @@ from django.urls import reverse, reverse_lazy
 from django.template.loader import render_to_string
 from django.views import View
 from django.views.generic import TemplateView, ListView, DetailView, FormView, CreateView, UpdateView
+from django.core.paginator import Paginator
 
 from .models import Category, TagPost, Women, UploadFiles
 from .forms import AddPostForm, UploadFileForm
@@ -44,15 +45,23 @@ class WomenHome(DataMixin, ListView):
 
 
 def about(request):
-    if request.method == 'POST':
-        form = UploadFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            # handle_uploaded_file(form.cleaned_data['file'])
-            fp = UploadFiles(file=form.cleaned_data['file'])
-            fp.save()
-    elif request.method == 'GET':
-        form = UploadFileForm()
-    return render(request, 'women/about.html', {'title': 'О сайте', 'form': form})
+    contact_list = Women.published.all()
+    paginator = Paginator(contact_list, 3)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'women/about.html', {'title': 'О сайте', 'page_obj': page_obj})
+
+# def about(request):
+    # if request.method == 'POST':
+    #     form = UploadFileForm(request.POST, request.FILES)
+    #     if form.is_valid():
+    #         # handle_uploaded_file(form.cleaned_data['file'])
+    #         fp = UploadFiles(file=form.cleaned_data['file'])
+    #         fp.save()
+    # elif request.method == 'GET':
+    #     form = UploadFileForm()
+    # return render(request, 'women/about.html', {'title': 'О сайте', 'form': form})
 
 
 class ShowPost(DataMixin, DetailView):
